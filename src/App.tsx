@@ -93,8 +93,9 @@ function App() {
       .forEach(([date, dailyData]) => {
         Object.entries(dailyData as Record<string, number>)
           .sort(([, timeA], [, timeB]) => timeB - timeA)
-          .forEach(([domain, time]) => {
-            rows.push([date, domain, time.toString()]);
+          .forEach(([domain, timeInMilliseconds]) => {
+            const timeInSeconds = Math.floor(timeInMilliseconds / 1000).toString();
+            rows.push([date, domain, timeInSeconds]);
           });
       });
 
