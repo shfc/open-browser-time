@@ -1,20 +1,16 @@
-export function complexCal(num:number){
-    return num*2;
-};
-
-export function complexCal2(num:number){
-    chrome.storage.local.get(null,(data)=>{
-        console.log(data);
-    })
-    return num*3;
-};
-
-// format the seconds to string
-// 3600 -> 1h.
-// 60 -> 1min.
-// 1 -> 1s.
-// 3661 -> 1h 1min.
-export function FormatSecondsToString(seconds:number){
+/**
+ * Converts a given number of seconds into a formatted string.
+ * 
+ * @param seconds - The number of seconds to format.
+ * @returns A string representing the formatted time.
+ * 
+ * The format is as follows:
+ * - If the number of seconds is less than 60, it returns the seconds followed by 's.'.
+ * - If the number of seconds is less than 3600 (1 hour), it returns the minutes followed by 'min.'.
+ * - If the number of seconds is 3600 or more, it returns the hours followed by 'h.'.
+ * - If there are remaining minutes after calculating hours, it includes the minutes in the format 'h min.'.
+ */
+export function formatSecondsToString(seconds:number){
     if(seconds<60){
         return `${seconds}s.`;
     }else if(seconds<3600){
@@ -40,4 +36,9 @@ export function isSameDate(date1: Date, date2: Date): boolean {
     return date1.getFullYear() === date2.getFullYear() &&
            date1.getMonth() === date2.getMonth() &&
            date1.getDate() === date2.getDate();
+}
+
+// return the date with offset, will return a new date object
+export function getOffsetDate(date: Date, offset: number): Date {
+    return new Date(new Date(date).setDate(date.getDate() + offset));
 }
