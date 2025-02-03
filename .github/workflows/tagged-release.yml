@@ -44,7 +44,8 @@ jobs:
           mkdir -p ./release
           CHROME_EXT_NAME="${{ env.TARGET_NAME }}-chrome"
           mv dist "./release/$CHROME_EXT_NAME"
-          zip -r "./release/$CHROME_EXT_NAME.zip" "./release/$CHROME_EXT_NAME"
+          cd ./release
+          zip -r "./$CHROME_EXT_NAME.zip" "./$CHROME_EXT_NAME"
 
       - name: Release
         uses: softprops/action-gh-release@v2
