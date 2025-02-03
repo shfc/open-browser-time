@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Open Browser Time",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight, open-source browser extension for tracking time.",
   "action": {
     "default_popup": "index.html"
