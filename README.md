@@ -1,5 +1,10 @@
-# Open Browser Time
-Open Browser Time is an open-source tool designed to record and analyze browser visit times. It helps users track their time spent on websites, aiding in better time management.
+<p align="center"><a href="https://github.com/shfc/open-browser-time" target="_blank" rel="noreferrer noopener"><img width="120" alt="Open Browser Time" src="https://raw.githubusercontent.com/shfc/open-browser-time/refs/heads/main/src/assets/icon.svg"></a></p>
+
+<h2 align="center">Open Browser Time</h2>
+<br/>
+<p align="center">Open Browser Time is an <strong>open-source</strong> tool designed to record and analyze browser visit times. It helps users track <strong>time spent on websites</strong>, aiding in better time management.</p>
+<br/>
+<br/>
 
 ## Features
 
