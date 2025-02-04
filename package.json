@@ -1,5 +1,5 @@
 {
-  "name": "my-chrome-extension",
+  "name": "open-browser-time",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build && vite build -c vite.config.background.ts",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:u": "npx jest",
+    "ci": "npm run lint && npm run test:u && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.1",
