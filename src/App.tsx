@@ -30,8 +30,30 @@ function App() {
   const mockData = useMemo(generateMockData, []);
 
   useEffect(() => {
+    // Load data by date range
+    const loadDataByDateRange = (start: Date, end: Date) => {
+      const startStr = formatDate(start);
+      const endStr = formatDate(end);
+      const processDataByDateRange = (dataSource: Record<string, DataMap>) => {
+        const newData = Object.entries(dataSource)
+          .filter(([date]) => date >= startStr && date <= endStr)
+          .reduce((acc, [, dailyData]) => {
+            Object.entries(dailyData).forEach(([domain, time]) => {
+              acc[domain] = (acc[domain] || 0) + time;
+            });
+            return acc;
+          }, {} as DataMap);
+        setData(newData);
+      };
+      if (import.meta.env.DEV) {
+        processDataByDateRange(mockData);
+      } else {
+        chrome.storage.local.get(null, processDataByDateRange);
+      }
+    };
+
     loadDataByDateRange(analysisDate, analysisDate);
-  }, [analysisDate]);
+  }, [analysisDate, mockData]);
 
   const sortedData = useMemo(
     () => Object.entries(data).sort((a, b) => b[1] - a[1]),
@@ -39,31 +61,6 @@ function App() {
   );
 
   console.debug(sortedData);
-
-  
-
-  // Load data by date range
-  const loadDataByDateRange = (start: Date, end: Date) => {
-    const startStr = formatDate(start);
-    const endStr = formatDate(end);
-    const processDataByDateRange = (dataSource: Record<string, DataMap>) => {
-      const newData = Object.entries(dataSource)
-        .filter(([date]) => date >= startStr && date <= endStr)
-        .reduce((acc, [, dailyData]) => {
-          Object.entries(dailyData).forEach(([domain, time]) => {
-            acc[domain] = (acc[domain] || 0) + time;
-          });
-          return acc;
-        }, {} as DataMap);
-      setData(newData);
-    };
-    if (import.meta.env.DEV) {
-      processDataByDateRange(mockData);
-    } else {
-      chrome.storage.local.get(null, processDataByDateRange);
-    }
-  };
-
 
   const changeDate = (offset: number) => {
     setAnalysisDate(getOffsetDate(analysisDate,offset));
