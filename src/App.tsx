@@ -57,6 +57,69 @@ function App() {
       })();
   };
 
+  // Validate data from CSV
+  const validateData = (content: string) => {
+    const rows = content.split("\n");
+    if (rows.length === 0) {
+      alert("No data found in the CSV file.");
+      return;
+    }
+
+    const headers = rows[0].split(",");
+    if (headers.length !== 3) {
+      alert("Invalid CSV format. Expected 3 columns: Date, Website, Time Spent (seconds)");
+      return;
+    }
+
+    const invalidRow = rows.slice(1).find((row) => {
+      const [date, domain, time] = row.split(",");
+      if (!date || !domain || !time || isNaN(parseInt(time, 10))) {
+        return true;
+      }
+      return false;
+    });
+
+    if (invalidRow) {
+      alert("Invalid data found in the CSV file. Please check the format.");
+      return;
+    }
+
+    return true;
+  };
+  
+  // Import data from CSV
+  const ImportFromCSV = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          if (validateData(content)) {
+            const rows = content.split("\n");
+            const importedData: Record<string, Record<string, number>> = {};
+            rows.slice(1).forEach((row) => {
+              const [date, domain, time] = row.split(",");
+              if (!importedData[date]) {
+                importedData[date] = {};
+              }
+              importedData[date][domain] = parseInt(time, 10) * 1000;
+            });
+
+            storage.set(importedData).then(() => {
+              alert("Data has been imported successfully.");
+            });
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
   const generateCSV = (exportData: Record<string, Record<string, number>>) => {
     const rows = [["Date", "Website", "Time Spent (seconds)"]];
     Object.entries(exportData)
@@ -147,6 +210,7 @@ function App() {
       </table>
 
       <footer className="grid grid-cols-2 gap-4 mt-6">
+        <button className="py-2 rounded hover:bg-blue-600" onClick={ImportFromCSV}>Import from CSV</button>
         <button className="py-2 rounded hover:bg-blue-600" onClick={exportToCSV}>Export to CSV</button>
         <button className="py-2 rounded hover:bg-red-600" onClick={resetData}>Reset Data</button>
       </footer>
