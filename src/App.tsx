@@ -3,31 +3,14 @@ import icon from "./assets/icon.png";
 import "./App.css";
 import { formatSecondsToString as formatSecondsToString, formatDate, isSameDate, getOffsetDate } from "./utils";
 import { displayDateRange } from "./helper";
+import storage from "./storage/Storage";
 
 type DataMap = Record<string, number>;
 const today = new Date();
 
-const generateMockData = (): Record<string, DataMap> => {
-  const mock = (length: number, multiplier: number) =>
-    Object.fromEntries(
-      Array.from({ length }, (_, i) => [`open_browser_${i}.time`, multiplier * (i + 1)])
-    );
-
-  return {
-    [formatDate(today)]: {
-      "open_browser_0.time": 3600000,
-      "open_browser_1.time": 200000,
-      ...Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`open_browser_${i + 1}.io`, (i + 1) * 1000]))
-    },
-    [formatDate(getOffsetDate(today,- 1))]: mock(15, 1000),
-    [formatDate(getOffsetDate(today,- 2))]: mock(17, 2000)
-  };
-};
-
 function App() {
   const [data, setData] = useState<DataMap>({});
   const [analysisDate, setAnalysisDate] = useState<Date>(today);
-  const mockData = useMemo(generateMockData, []);
 
   useEffect(() => {
     // Load data by date range
@@ -45,15 +28,14 @@ function App() {
           }, {} as DataMap);
         setData(newData);
       };
-      if (import.meta.env.DEV) {
-        processDataByDateRange(mockData);
-      } else {
-        chrome.storage.local.get(null, processDataByDateRange);
-      }
+
+      storage.get(null).then((result) => {
+        processDataByDateRange(result as Record<string, DataMap>);
+      });
     };
 
     loadDataByDateRange(analysisDate, analysisDate);
-  }, [analysisDate, mockData]);
+  }, [analysisDate]);
 
   const sortedData = useMemo(
     () => Object.entries(data).sort((a, b) => b[1] - a[1]),
@@ -68,16 +50,11 @@ function App() {
 
   // Export data to CSV
   const exportToCSV = () => {
-    if (import.meta.env.DEV) {
-      // Use mock data in development mode
-      const exportData = mockData;
-      generateCSV(exportData);
-    } else {
-      // Load data from Chrome storage
-      chrome.storage.local.get(null, (result) => {
-        generateCSV(result);
-      });
-    }
+      // Load data from storage
+      (async () => {
+        const result = await storage.get(null);
+        generateCSV(result as Record<string, Record<string, number>>);
+      })();
   };
 
   const generateCSV = (exportData: Record<string, Record<string, number>>) => {
@@ -111,7 +88,7 @@ function App() {
   // Reset data
   const resetData = () => {
     if (window.confirm("Are you sure you want to reset all data?")) {
-      chrome.storage.local.clear(() => {
+      storage.clear().then(() => {
         setData({});
         alert("All data has been reset.");
       });
