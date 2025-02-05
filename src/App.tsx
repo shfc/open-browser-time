@@ -3,7 +3,7 @@ import icon from "./assets/icon.png";
 import "./App.css";
 import { formatSecondsToString as formatSecondsToString, formatDate, isSameDate, getOffsetDate } from "./utils";
 import { displayDateRange } from "./helper";
-import storage from "./storage/Storage";
+import storage from "./storage/storage";
 
 type DataMap = Record<string, number>;
 const today = new Date();
