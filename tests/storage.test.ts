@@ -1,4 +1,4 @@
-import storage from '../src/storage/storage';
+import storage from '../src/storage/Storage';
 
 describe('Storage', () => {
     beforeEach(async () => {
