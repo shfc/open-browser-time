@@ -4,6 +4,8 @@ import "./App.css";
 import { formatSecondsToString as formatSecondsToString, formatDate, isSameDate, getOffsetDate } from "./utils";
 import { displayDateRange } from "./helper";
 import storage from "./storage/Storage";
+import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
+import Settings from "./Settings";
 
 type DataMap = Record<string, number>;
 const today = new Date();
@@ -158,63 +160,76 @@ function App() {
     }
   };
 
+  const DashboardLayout = () => {
+    return(<>
+
+<section className="flex items-center justify-between pl-1">
+              <span className="text-base">Usage</span>
+              <div className="flex items-center gap-2">
+                <span className="text-base w-48 text-center">{displayDateRange(analysisDate, analysisDate)}</span>
+                <button className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-lg" onClick={() => changeDate(-1)}>
+                  &lt;
+                </button>
+                <button
+                  className={`p-1 rounded-full text-lg ${isSameDate(analysisDate, today) ? "bg-gray-200 text-gray-400 disabled:pointer-events-none disabled:cursor-default" : "bg-gray-200 hover:bg-gray-300"}`}
+                  disabled={isSameDate(analysisDate, today)}
+                  onClick={() => changeDate(1)}
+                >
+                  &gt;
+                </button>
+              </div>
+            </section>
+
+            <section className="mt-0 pl-1">
+              <div className="flex items-center justify-between h-10">
+                <p className="font-bold text-3xl">
+                  {formatSecondsToString(Math.floor(sortedData.reduce((n, [, time]) => n + time, 0) / 1000))}
+                </p>
+              </div>
+            </section>
+
+            <table className="table-auto text-left text-base mt-6 w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2">Websites</th>
+                  <th className="p-2">Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedData.slice(0, 10).map(([domain, time]) => (
+                  <tr key={domain} className="border-t border-gray-300">
+                    <td className="p-2">
+                      <a href={`//${domain}`} target="_blank" rel="noreferrer">{domain}</a>
+                    </td>
+                    <td className="p-2">{formatSecondsToString(Math.floor(time / 1000))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <footer className="grid grid-cols-2 gap-4 mt-6">
+              <button className="py-2 rounded hover:bg-blue-600" onClick={ImportFromCSV}>Import from CSV</button>
+              <button className="py-2 rounded hover:bg-blue-600" onClick={exportToCSV}>Export to CSV</button>
+              <button className="py-2 rounded hover:bg-red-600" onClick={resetData}>Reset Data</button>
+            </footer>
+    </>
+    )
+  };
+
   return (
-    <div className="p-4">
-      <header className="flex items-center mb-3 border-b border-gray-300 pb-2">
-        <img src={icon} className="size-4" alt="Browser Time Logo" />
-        <p className="font-bold text-lg ml-3">Open Browser Time</p>
-      </header>
-
-      <section className="flex items-center justify-between pl-1">
-        <span className="text-base">Usage</span>
-        <div className="flex items-center gap-2">
-          <span className="text-base w-48 text-center">{displayDateRange(analysisDate, analysisDate)}</span>
-          <button className="p-1 bg-gray-200 rounded-full hover:bg-gray-300 text-lg" onClick={() => changeDate(-1)}>
-            &lt;
-          </button>
-          <button
-            className={`p-1 rounded-full text-lg ${isSameDate(analysisDate, today) ? "bg-gray-200 text-gray-400 disabled:pointer-events-none disabled:cursor-default" : "bg-gray-200 hover:bg-gray-300"}`}
-            disabled={isSameDate(analysisDate, today)}
-            onClick={() => changeDate(1)}
-          >
-            &gt;
-          </button>
-        </div>
-      </section>
-
-      <section className="mt-0 pl-1">
-        <div className="flex items-center justify-between h-10">
-          <p className="font-bold text-3xl">
-            {formatSecondsToString(Math.floor(sortedData.reduce((n, [, time]) => n + time, 0) / 1000))}
-          </p>
-        </div>
-      </section>
-
-      <table className="table-auto text-left text-base mt-6 w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2">Websites</th>
-            <th className="p-2">Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedData.slice(0, 10).map(([domain, time]) => (
-            <tr key={domain} className="border-t border-gray-300">
-              <td className="p-2">
-                <a href={`//${domain}`} target="_blank" rel="noreferrer">{domain}</a>
-              </td>
-              <td className="p-2">{formatSecondsToString(Math.floor(time / 1000))}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <footer className="grid grid-cols-2 gap-4 mt-6">
-        <button className="py-2 rounded hover:bg-blue-600" onClick={ImportFromCSV}>Import from CSV</button>
-        <button className="py-2 rounded hover:bg-blue-600" onClick={exportToCSV}>Export to CSV</button>
-        <button className="py-2 rounded hover:bg-red-600" onClick={resetData}>Reset Data</button>
-      </footer>
-    </div>
+    <BrowserRouter>
+      <div className="p-4">
+        <header className="flex items-center mb-3 border-b border-gray-300 pb-2">
+          <img src={icon} className="size-4" alt="Browser Time Logo" />
+          <p className="font-bold text-lg ml-3">Open Browser Time</p>
+          <Link to="/settings" className="ml-auto p-2 bg-gray-200 rounded hover:bg-gray-300">Settings</Link>
+        </header>
+        <Routes>
+          <Route path="/settings"element= {<Settings />} />
+          <Route path="/" element={<DashboardLayout />} />
+        </Routes>
+      </div>
+      </BrowserRouter>
   )
 }
 
